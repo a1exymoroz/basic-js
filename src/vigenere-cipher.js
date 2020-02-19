@@ -1,88 +1,106 @@
 class VigenereCipheringMachine {
+    // This code based on https://github.com/o-klp/Vigenere-cipher/blob/master/VigenereCipher.js
 
-    const _tabulaRecta = {
-        "a": "abcdefghijklmnopqrstuvwxyz",
-        "b": "bcdefghijklmnopqrstuvwxyza",
-        "c": "cdefghijklmnopqrstuvwxyzab",
-        "d": "defghijklmnopqrstuvwxyzabc",
-        "e": "efghijklmnopqrstuvwxyzabcd",
-        "f": "fghijklmnopqrstuvwxyzabcde",
-        "g": "ghijklmnopqrstuvwxyzabcdef",
-        "h": "hijklmnopqrstuvwxyzabcdefg",
-        "i": "ijklmnopqrstuvwxyzabcdefgh",
-        "j": "jklmnopqrstuvwxyzabcdefghi",
-        "k": "klmnopqrstuvwxyzabcdefghij",
-        "l": "lmnopqrstuvwxyzabcdefghijk",
-        "m": "mnopqrstuvwxyzabcdefghijkl",
-        "n": "nopqrstuvwxyzabcdefghijklm",
-        "o": "opqrstuvwxyzabcdefghijklmn",
-        "p": "pqrstuvwxyzabcdefghijklmno",
-        "q": "qrstuvwxyzabcdefghijklmnop",
-        "r": "rstuvwxyzabcdefghijklmnopq",
-        "s": "stuvwxyzabcdefghijklmnopqr",
-        "t": "tuvwxyzabcdefghijklmnopqrs",
-        "u": "uvwxyzabcdefghijklmnopqrst",
-        "v": "vwxyzabcdefghijklmnopqrstu",
-        "w": "wxyzabcdefghijklmnopqrstuv",
-        "x": "xyzabcdefghijklmnopqrstuvw",
-        "y": "yzabcdefghijklmnopqrstuvwx",
-        "z": "zabcdefghijklmnopqrstuvwxy"
-    };
+    constructor(reverse = true) {
+        this.reverse = reverse;
+        this.tabulaRecta = {
+            "a": "abcdefghijklmnopqrstuvwxyz",
+            "b": "bcdefghijklmnopqrstuvwxyza",
+            "c": "cdefghijklmnopqrstuvwxyzab",
+            "d": "defghijklmnopqrstuvwxyzabc",
+            "e": "efghijklmnopqrstuvwxyzabcd",
+            "f": "fghijklmnopqrstuvwxyzabcde",
+            "g": "ghijklmnopqrstuvwxyzabcdef",
+            "h": "hijklmnopqrstuvwxyzabcdefg",
+            "i": "ijklmnopqrstuvwxyzabcdefgh",
+            "j": "jklmnopqrstuvwxyzabcdefghi",
+            "k": "klmnopqrstuvwxyzabcdefghij",
+            "l": "lmnopqrstuvwxyzabcdefghijk",
+            "m": "mnopqrstuvwxyzabcdefghijkl",
+            "n": "nopqrstuvwxyzabcdefghijklm",
+            "o": "opqrstuvwxyzabcdefghijklmn",
+            "p": "pqrstuvwxyzabcdefghijklmno",
+            "q": "qrstuvwxyzabcdefghijklmnop",
+            "r": "rstuvwxyzabcdefghijklmnopq",
+            "s": "stuvwxyzabcdefghijklmnopqr",
+            "t": "tuvwxyzabcdefghijklmnopqrs",
+            "u": "uvwxyzabcdefghijklmnopqrst",
+            "v": "vwxyzabcdefghijklmnopqrstu",
+            "w": "wxyzabcdefghijklmnopqrstuv",
+            "x": "xyzabcdefghijklmnopqrstuvw",
+            "y": "yzabcdefghijklmnopqrstuvwx",
+            "z": "zabcdefghijklmnopqrstuvwxy"
+        }
+    }
     
     encrypt(plainText, keyword) {
         if( typeof(plainText) !== "string" ){
-            return "invalid plainText. Must be string, not " + typeof(plainText);
+            throw "invalid plainText. Must be string, not " + typeof(plainText);
         }
         if( typeof(keyword) !== "string" ){
-            return "invalid keyword. Must be string, not " + typeof(keyword);
+            throw "invalid keyword. Must be string, not " + typeof(keyword);
         }
     
         plainText = plainText.toLowerCase();
         keyword = keyword.match(/[a-z]/gi).join("").toLowerCase();
-        var encryptedText = "";
-        var specialCharacterCount = 0;
+        let encryptedText = "";
+        // This character for symbols
+        let specialCharacterCount = 0;
     
-        for( var i = 0; i < plainText.length; i++ ){
-        var keyLetter = (i - specialCharacterCount) % keyword.length;
-        var keywordIndex = this._tabulaRecta.a.indexOf(keyword[keyLetter]);
+        for( let i = 0; i < plainText.length; i++ ){
+            const keyLetter = (i - specialCharacterCount) % keyword.length;
+            const keywordIndex = this.tabulaRecta.a.indexOf(keyword[keyLetter]);
     
-        if( this._tabulaRecta[plainText[i]] ){
-            encryptedText += this._tabulaRecta[plainText[i]][keywordIndex];
-        }else{
-            encryptedText += plainText[i];
-            specialCharacterCount++;
+            // if we have plainText HSVD AJAL ^^ with keyword behappy:
+            // GOOD LUCK ^^ => behappybeha
+            // tabulaRecta doesn't have a symbols
+            // so we go to else and add this symbols
+            if( this.tabulaRecta[plainText[i]] ){
+                encryptedText += this.tabulaRecta[plainText[i]][keywordIndex];
+            }else{
+                encryptedText += plainText[i];
+                specialCharacterCount++;
+            }
         }
-        }
-    
-        return encryptedText;
+        
+        encryptedText = encryptedText.toUpperCase()
+
+        return this.reverse ? encryptedText : encryptedText.split('').reverse().join('');
     }
 
     decrypt(encryptedText, keyword) {
         if( typeof(encryptedText) !== "string" ){
-            return "invalid encryptedText. Must be string, not " + typeof(encryptedText);
-          }
-          if( typeof(keyword) !== "string" ){
-            return "invalid keyword. Must be string, not " + typeof(keyword);
-          }
+            throw "invalid encryptedText. Must be string, not " + typeof(encryptedText);
+        }
+        if( typeof(keyword) !== "string" ){
+            throw "invalid keyword. Must be string, not " + typeof(keyword);
+        }
       
-          encryptedText = encryptedText.toLowerCase();
-          keyword = keyword.match(/[a-z]/gi).join("").toLowerCase();
-          var decryptedText = "";
-          var specialCharacterCount = 0;
+        encryptedText = encryptedText.toLowerCase();
+        keyword = keyword.match(/[a-z]/gi).join("").toLowerCase();
+        let decryptedText = "";
+        // This character for symbols
+        let specialCharacterCount = 0;
       
-          for( var i = 0; i < encryptedText.length; i++ ){
-            var keyLetter = (i - specialCharacterCount) % keyword.length;
-            var keyRow = this._tabulaRecta[keyword[keyLetter]];
-      
+        for( let i = 0; i < encryptedText.length; i++ ){
+            const keyLetter = (i - specialCharacterCount) % keyword.length;
+            const keyRow = this.tabulaRecta[keyword[keyLetter]];
+    
+            // if we have encryptedText HSVD AJAL ^^ with keyword behappy:
+            // HSVD AJAL ^^ => behappybeha
+            // keyRow doesn't have a symbols
+            // so we go to else and add this symbols
             if( keyRow.indexOf(encryptedText[i]) !== -1 ){
-              decryptedText += this._tabulaRecta.a[keyRow.indexOf(encryptedText[i])];
+                decryptedText += this.tabulaRecta.a[keyRow.indexOf(encryptedText[i])];
             }else{
-              decryptedText += encryptedText[i];
-              specialCharacterCount++;
+                decryptedText += encryptedText[i];
+                specialCharacterCount++;
             }
-          }
+        }
       
-          return decryptedText;
+        decryptedText = decryptedText.toUpperCase()
+
+        return this.reverse ? decryptedText : decryptedText.split('').reverse().join('');
     }
 }
 
